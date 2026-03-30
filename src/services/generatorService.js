@@ -98,7 +98,22 @@ function includesKeyword(prompt, keyword) {
 }
 
 export async function generateGameBlueprint({ prompt, gameType, complexity }) {
-  await new Promise((resolve) => setTimeout(resolve, 1100));
+  // v2: Prefer API route (server/index.js). Falls back to local mock.
+  try {
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt, gameType, complexity })
+    });
+
+    if (response.ok) {
+      return await response.json();
+    }
+  } catch (error) {
+    // If the API server isn't running, we'll use the local mock below.
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, 900));
 
   const normalized = prompt.toLowerCase();
   const systems = [...baseSystems];
