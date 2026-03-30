@@ -31,11 +31,24 @@ npm start
 
 Then open `http://localhost:3000`.
 
+### Optional: enable real OpenAI generation
+
+1. Create a local env file:
+   - `cp .env.example .env`
+2. Set your key in `.env`:
+   - `OPENAI_API_KEY=...`
+3. Restart the API server:
+   - `npm run server`
+
+When OpenAI is configured, `/api/generate` uses OpenAI.
+If not configured (or if OpenAI fails), it automatically falls back to the mock provider.
+
 ## API notes
 
 - The frontend calls `POST /api/generate` (proxied to `http://localhost:5055`) when the API is running.
 - If the API isn’t running, it falls back to a local mock generator so the UI still works.
 - Health check: `GET /api/health`
+- Health payload includes `openaiConfigured` so you can verify key setup quickly.
 
 ## Version 2 roadmap (recommended next)
 
