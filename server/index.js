@@ -1,13 +1,17 @@
 const express = require("express");
 const { buildBlueprint } = require("./generator");
 const { generateWithOpenAI } = require("./openaiGenerator");
+require("dotenv").config();
 
 const app = express();
 
 app.use(express.json({ limit: "1mb" }));
 
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, openaiConfigured: Boolean(process.env.OPENAI_API_KEY) });
+  const key = process.env.OPENAI_API_KEY || "";
+  const looksConfigured =
+    key.length > 10 && !key.includes("your_openai_api_key_here");
+  res.json({ ok: true, openaiConfigured: looksConfigured });
 });
 
 app.post("/api/generate", async (req, res) => {
