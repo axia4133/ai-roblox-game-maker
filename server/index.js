@@ -1,13 +1,17 @@
 const express = require("express");
 const { buildBlueprint } = require("./generator");
 const { generateWithOpenAI } = require("./openaiGenerator");
+require("dotenv").config();
 
 const app = express();
 
 app.use(express.json({ limit: "1mb" }));
 
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, openaiConfigured: Boolean(process.env.OPENAI_API_KEY) });
+  const key = process.env.OPENAI_API_KEY || "";
+  const looksConfigured =
+    key.length > 10 && !key.includes("your_openai_api_key_here");
+  res.json({ ok: true, openaiConfigured: looksConfigured });
 });
 
 app.post("/api/generate", async (req, res) => {
@@ -20,17 +24,24 @@ app.post("/api/generate", async (req, res) => {
 
     try {
       const aiResult = await generateWithOpenAI({ prompt, gameType, complexity });
-      return res.json({ ...aiResult, provider: "openai" });
+      return res.json({ ...aiResult, provider: "openai", generatedAt: Date.now() });
     } catch (openAIError) {
       // If OpenAI is unavailable, return deterministic mock output.
       await new Promise((resolve) => setTimeout(resolve, 450));
+      const reason =
+        openAIError && typeof openAIError.message === "string"
+          ? openAIError.message
+          : "OpenAI generation failed";
       return res.json({
         ...buildBlueprint({
           prompt,
           gameType,
           complexity
         }),
-        provider: "mock"
+        provider: "mock",
+        model: "deterministic-mock",
+        generatedAt: Date.now(),
+        fallbackReason: reason
       });
     }
   } catch (error) {
