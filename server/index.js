@@ -24,17 +24,24 @@ app.post("/api/generate", async (req, res) => {
 
     try {
       const aiResult = await generateWithOpenAI({ prompt, gameType, complexity });
-      return res.json({ ...aiResult, provider: "openai" });
+      return res.json({ ...aiResult, provider: "openai", generatedAt: Date.now() });
     } catch (openAIError) {
       // If OpenAI is unavailable, return deterministic mock output.
       await new Promise((resolve) => setTimeout(resolve, 450));
+      const reason =
+        openAIError && typeof openAIError.message === "string"
+          ? openAIError.message
+          : "OpenAI generation failed";
       return res.json({
         ...buildBlueprint({
           prompt,
           gameType,
           complexity
         }),
-        provider: "mock"
+        provider: "mock",
+        model: "deterministic-mock",
+        generatedAt: Date.now(),
+        fallbackReason: reason
       });
     }
   } catch (error) {

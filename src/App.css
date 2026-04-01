@@ -390,6 +390,18 @@ select:focus {
   min-height: 170px;
 }
 
+.output-meta {
+  margin-top: 6px;
+  font-size: 0.84rem;
+  color: #9fb0d8;
+}
+
+.output-warning {
+  margin-top: 6px;
+  color: #ffcb94;
+  font-size: 0.82rem;
+}
+
 .tab-content ul {
   display: grid;
   gap: 8px;

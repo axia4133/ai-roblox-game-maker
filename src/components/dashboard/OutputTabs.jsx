@@ -10,6 +10,9 @@ const tabConfig = [
 
 function OutputTabs({ result, onCopy, onDownload }) {
   const [activeTab, setActiveTab] = useState("overview");
+  const generatedAtText = result?.generatedAt
+    ? new Date(result.generatedAt).toLocaleString()
+    : "n/a";
 
   const activeContent = useMemo(() => {
     if (!result) {
@@ -74,7 +77,19 @@ function OutputTabs({ result, onCopy, onDownload }) {
   return (
     <section className="card output-panel">
       <div className="output-header">
-        <h3>{result.title}</h3>
+        <div>
+          <h3>{result.title}</h3>
+          <p className="output-meta">
+            Provider: <strong>{result.provider || "unknown"}</strong>
+            {"  "} | {"  "}
+            Model: <strong>{result.model || "n/a"}</strong>
+            {"  "} | {"  "}
+            Generated: <strong>{generatedAtText}</strong>
+          </p>
+          {result.fallbackReason ? (
+            <p className="output-warning">Fallback reason: {result.fallbackReason}</p>
+          ) : null}
+        </div>
         <div className="action-row">
           <button className="btn-secondary" onClick={onCopy}>
             Copy Output
